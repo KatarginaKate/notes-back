@@ -3,47 +3,36 @@ import cors from 'cors';
 import pino from 'pino-http';
 
 const logger = pino({
+  level: 'info',
   transport: {
     target: 'pino-pretty',
+    options: {
+      colorize: true,
+      translateTime: 'HH:MM:ss',
+      ignore: 'pid,hostname',
+      messageFormat:
+        '{req.method} {req.url} {res.statusCode} - {responseTime}ms',
+      hideObject: true,
+    },
   },
 });
 
 const app = express();
-
 const PORT = process.env.PORT || 3000;
-
-app.use(express.json());
-app.use(cors());
-app.use(logger);
 
 // Middleware
 app.use(express.json());
 app.use(cors());
-app.use(
-  pino({
-    level: 'info',
-    transport: {
-      target: 'pino-pretty',
-      options: {
-        colorize: true,
-        translateTime: 'HH:MM:ss',
-        ignore: 'pid,hostname',
-        messageFormat:
-          '{req.method} {req.url} {res.statusCode} - {responseTime}ms',
-        hideObject: true,
-      },
-    },
-  }),
-);
+app.use(logger);
 
-// GET /notes — всі нотатки
+// GET /notes
 app.get('/notes', (req, res) => {
   res.status(200).json({
     message: 'Retrieved all notes',
   });
 });
 
-// GET /notes/:noteId — одна нотатка
+// GET /notes/:noteId
 app.get('/notes/:noteId', (req, res) => {
   const { noteId } = req.params;
 
@@ -52,21 +41,17 @@ app.get('/notes/:noteId', (req, res) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
-
-// Маршрут для тестування middleware помилки
-app.get('/test-error', (req, res) => {
-  // Штучна помилка для прикладу
+// test error route
+app.get('/test-error', () => {
   throw new Error('Simulated server error');
 });
 
-// Middleware 404 (після всіх маршрутів)
+// 404 middleware (після всіх маршрутів)
 app.use((req, res) => {
   res.status(404).json({ message: 'Route not found' });
 });
 
+// error middleware
 app.use((err, req, res, next) => {
   console.error(err);
 
@@ -79,6 +64,7 @@ app.use((err, req, res, next) => {
   });
 });
 
+// ONLY ONE listen
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
