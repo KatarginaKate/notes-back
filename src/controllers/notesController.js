@@ -24,13 +24,9 @@ export const getNoteById = async (req, res) => {
 // Створити нову нотатку
 
 export const createNote = async (req, res) => {
-  try {
-    const newNote = await Note.create(req.body);
+  const newNote = await Note.create(req.body);
 
-    res.status(201).json(newNote);
-  } catch (error) {
-    throw createHttpError(500, error.message);
-  }
+  res.status(201).json(newNote);
 };
 
 // Видалити нотатку за id
