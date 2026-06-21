@@ -29,7 +29,7 @@ export const createNote = async (req, res) => {
 
     res.status(201).json(newNote);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    throw createHttpError(500, error.message);
   }
 };
 
