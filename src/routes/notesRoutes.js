@@ -12,9 +12,9 @@ const router = Router();
 
 // src/routes/notesRoutes.js
 
-router.get('/notes', getAllNotes);
+router.get('/', getAllNotes);
 router.get('/notes/:noteId', getNoteById);
-router.post('/notes', createNote);
+router.post('/', createNote);
 router.delete('/notes/:noteId', deleteNote);
 router.patch('/notes/:noteId', updateNote);
 
