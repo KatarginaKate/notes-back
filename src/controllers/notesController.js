@@ -13,22 +13,43 @@ export const getAllNotes = async (req, res, next) => {
 
     const skip = (pageNum - 1) * perPageNum;
 
-    const filter = {};
+    // 🔥 base query
+    let query = Note.find();
+
+    // 🔹 filter by tag
+    if (tag) {
+      query = query.where('tag').equals(tag);
+    }
+
+    // 🔹 search in title + content
+    if (search) {
+      query = query.where({
+        $or: [
+          { title: { $regex: search, $options: 'i' } },
+          { content: { $regex: search, $options: 'i' } },
+        ],
+      });
+    }
+
+    // 📊 count query (IMPORTANT: separate but same chaining style)
+    let countQuery = Note.find();
 
     if (tag) {
-      filter.tag = tag;
+      countQuery = countQuery.where('tag').equals(tag);
     }
 
     if (search) {
-      filter.$or = [
-        { title: { $regex: search, $options: 'i' } },
-        { content: { $regex: search, $options: 'i' } },
-      ];
+      countQuery = countQuery.where({
+        $or: [
+          { title: { $regex: search, $options: 'i' } },
+          { content: { $regex: search, $options: 'i' } },
+        ],
+      });
     }
 
     const [totalNotes, notes] = await Promise.all([
-      Note.countDocuments(filter),
-      Note.find(filter)
+      countQuery.countDocuments(),
+      query
         .skip(skip)
         .limit(perPageNum)
         .sort({ createdAt: -1 }),
