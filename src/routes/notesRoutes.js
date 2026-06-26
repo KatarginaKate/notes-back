@@ -23,6 +23,5 @@ router.get('/:noteId', celebrate(noteIdSchema), getNoteById);
 router.post('/', celebrate(createNoteSchema), createNote);
 router.delete('/:noteId', celebrate(noteIdSchema), deleteNote);
 router.patch('/:noteId', celebrate(updateNoteSchema), updateNote);
-router.get('/search', celebrate(getAllNotesSchema), getAllNotes);
 
 export default router;

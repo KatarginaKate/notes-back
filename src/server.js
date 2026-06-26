@@ -18,7 +18,7 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(cors());
 app.use(logger);
-app.use('/notes', notesRoutes);
+app.use('/', notesRoutes);
 
 // 404 middleware (після всіх маршрутів)
 app.use(notFoundHandler);

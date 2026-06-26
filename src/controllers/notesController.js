@@ -8,9 +8,11 @@ export const getAllNotes = async (req, res, next) => {
   try {
     const { page = 1, perPage = 10, tag, search } = req.query;
 
-    const skip = (page - 1) * perPage;
+    const pageNum = Number(page);
+    const perPageNum = Number(perPage);
 
-    // 🔍 фільтр
+    const skip = (pageNum - 1) * perPageNum;
+
     const filter = {};
 
     if (tag) {
@@ -19,29 +21,24 @@ export const getAllNotes = async (req, res, next) => {
 
     if (search) {
       filter.$or = [
-        {
-          title: { $regex: search, $options: 'i' },
-        },
-        {
-          content: { $regex: search, $options: 'i' },
-        },
+        { title: { $regex: search, $options: 'i' } },
+        { content: { $regex: search, $options: 'i' } },
       ];
     }
 
-    // 📊 загальна кількість
-    const totalNotes = await Note.countDocuments(filter);
+    const [totalNotes, notes] = await Promise.all([
+      Note.countDocuments(filter),
+      Note.find(filter)
+        .skip(skip)
+        .limit(perPageNum)
+        .sort({ createdAt: -1 }),
+    ]);
 
-    // 📄 дані з пагінацією
-    const notes = await Note.find(filter)
-      .skip(skip)
-      .limit(Number(perPage))
-      .sort({ createdAt: -1 });
-
-    const totalPages = Math.ceil(totalNotes / perPage);
+    const totalPages = Math.ceil(totalNotes / perPageNum);
 
     res.status(200).json({
-      page: Number(page),
-      perPage: Number(perPage),
+      page: pageNum,
+      perPage: perPageNum,
       totalNotes,
       totalPages,
       notes,
