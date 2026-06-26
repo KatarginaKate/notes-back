@@ -4,13 +4,55 @@ import createHttpError from 'http-errors';
 // src/controllers/notesController.js
 
 // Отримати список усіх нотаток
-export const getAllNotes = async (req, res) => {
-  const notes = await Note.find();
-  res.status(200).json(notes);
+export const getAllNotes = async (req, res, next) => {
+  try {
+    const { page = 1, perPage = 10, tag, search } = req.query;
+
+    const skip = (page - 1) * perPage;
+
+    // 🔍 фільтр
+    const filter = {};
+
+    if (tag) {
+      filter.tag = tag;
+    }
+
+    if (search) {
+      filter.$or = [
+        {
+          title: { $regex: search, $options: 'i' },
+        },
+        {
+          content: { $regex: search, $options: 'i' },
+        },
+      ];
+    }
+
+    // 📊 загальна кількість
+    const totalNotes = await Note.countDocuments(filter);
+
+    // 📄 дані з пагінацією
+    const notes = await Note.find(filter)
+      .skip(skip)
+      .limit(Number(perPage))
+      .sort({ createdAt: -1 });
+
+    const totalPages = Math.ceil(totalNotes / perPage);
+
+    res.status(200).json({
+      page: Number(page),
+      perPage: Number(perPage),
+      totalNotes,
+      totalPages,
+      notes,
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
 // Отримати одну нотатку за id
-export const getNoteById = async (req, res) => {
+export const getNoteById = async (req, res, next) => {
   const { noteId } = req.params;
   const note = await Note.findById(noteId);
 

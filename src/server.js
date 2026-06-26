@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import { connectMongoDB } from './db/connectMongoDB.js';
 import { logger } from './middleware/logger.js';
 import { notFoundHandler } from './middleware/notFoundHandler.js';
+import { errors } from 'celebrate';
 import { errorHandler } from './middleware/errorHandler.js';
 
 import notesRoutes from './routes/notesRoutes.js';
@@ -21,6 +22,8 @@ app.use('/notes', notesRoutes);
 
 // 404 middleware (після всіх маршрутів)
 app.use(notFoundHandler);
+
+app.use(errors());
 
 // error middleware
 app.use(errorHandler);
