@@ -71,3 +71,4 @@ export const getNotesSchema = {
     perPage: Joi.number().integer().min(5).max(20).default(10),
   }),
 };
+
