@@ -25,6 +25,7 @@ const noteSchema = new mongoose.Schema(
     userId: {
       type: Schema.Types.ObjectId,
       ref: 'User',
+      required: true,
     },
   },
   {
@@ -34,4 +35,4 @@ const noteSchema = new mongoose.Schema(
 
 noteSchema.index({ userId: 1, tag: 1 });
 
-export const Note =model('Note', noteSchema);
+export const Note = model('Note', noteSchema);

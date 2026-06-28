@@ -32,7 +32,7 @@ export const getAllNotes = async (req, res, next) => {
     }
 
     // 📊 count query (IMPORTANT: separate but same chaining style)
-    let countQuery = Note.find();
+    let countQuery = Note.find({ userId: req.user._id });
 
     if (tag) {
       countQuery = countQuery.where('tag').equals(tag);

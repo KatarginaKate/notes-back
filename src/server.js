@@ -22,7 +22,7 @@ app.use(cors());
 app.use(cookieParser());
 app.use(logger);
 app.use('/', notesRoutes);
-app.use('/auth', authRoutes);
+app.use('/', authRoutes);
 
 // 404 middleware (після всіх маршрутів)
 app.use(notFoundHandler);
