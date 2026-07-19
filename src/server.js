@@ -7,6 +7,7 @@ import { notFoundHandler } from './middleware/notFoundHandler.js';
 import { errors } from 'celebrate';
 import { errorHandler } from './middleware/errorHandler.js';
 import authRoutes from './routes/authRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 
 import notesRoutes from './routes/notesRoutes.js';
 import cookieParser from "cookie-parser";
@@ -23,6 +24,7 @@ app.use(cookieParser());
 app.use(logger);
 app.use('/notes', notesRoutes);
 app.use('/auth', authRoutes);
+app.use(userRoutes);
 
 // 404 middleware (після всіх маршрутів)
 app.use(notFoundHandler);
