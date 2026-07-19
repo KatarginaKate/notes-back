@@ -20,9 +20,9 @@ app.use(express.json());
 app.use(cors());
 app.use(cookieParser());
 app.use(logger);
-app.use('/', notesRoutes);
-app.use('/', authRoutes);
-app.use('/', userRoutes);
+app.use('/notes', notesRoutes);
+app.use('/auth', authRoutes);
+app.use('/users', userRoutes);
 
 // 404 middleware (після всіх маршрутів)
 app.use(notFoundHandler);
