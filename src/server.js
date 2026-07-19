@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
+import 'dotenv/config';
 import { connectMongoDB } from './db/connectMongoDB.js';
 import { logger } from './middleware/logger.js';
 import { notFoundHandler } from './middleware/notFoundHandler.js';
@@ -12,8 +12,6 @@ import userRoutes from './routes/userRoutes.js';
 import notesRoutes from './routes/notesRoutes.js';
 import cookieParser from "cookie-parser";
 
-dotenv.config();
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -22,9 +20,9 @@ app.use(express.json());
 app.use(cors());
 app.use(cookieParser());
 app.use(logger);
-app.use('/notes', notesRoutes);
-app.use('/auth', authRoutes);
-app.use(userRoutes);
+app.use('/', notesRoutes);
+app.use('/', authRoutes);
+app.use('/', userRoutes);
 
 // 404 middleware (після всіх маршрутів)
 app.use(notFoundHandler);
