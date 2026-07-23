@@ -155,6 +155,17 @@ export const requestResetEmail = async (req, res) => {
   } catch {
     throw createHttpError(500, 'Failed to send the email, please try again later.');
   }
+try {
+  await sendEmail({
+    from: process.env.SMTP_FROM,
+    to: email,
+    subject: 'Reset your password',
+    html: html,
+  });
+} catch (err) {
+  console.error("EMAIL ERROR:", err); // ← Ось тут ми бачимо реальну причину
+  throw createHttpError(500, 'Failed to send the email, please try again later.');
+}
 
 	// Та сама "нейтральна" відповідь
   res.status(200).json({
@@ -195,3 +206,5 @@ export const resetPassword = async (req, res) => {
     message: 'Password reset successfully. Please log in again.',
   });
 };
+
+
