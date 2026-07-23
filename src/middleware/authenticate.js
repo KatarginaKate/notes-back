@@ -3,42 +3,36 @@ import { Session } from '../models/session.js';
 import { User } from '../models/user.js';
 
 export const authenticate = async (req, res, next) => {
-  const { sessionId, accessToken } = req.cookies;
+  const { sessionId } = req.cookies;
 
-  // 1. Перевіряємо наявність кукі
-  if (!sessionId || !accessToken) {
-    throw createHttpError(401, 'Missing access token');
+  // 1. Перевіряємо наявність sessionId
+  if (!sessionId) {
+    throw createHttpError(401, 'Missing session');
   }
 
-  // 2. Якщо все ок, шукаємо сесію
-  const session = await Session.findOne({
-    _id: sessionId,
-    accessToken,
-  });
+  // 2. Шукаємо сесію
+  const session = await Session.findById(sessionId);
 
-  // 3. Якщо такої сесії нема, повертаємо помилку
   if (!session) {
     throw createHttpError(401, 'Session not found');
   }
 
-  // 4. Перевіряємо термін дії access токена
+  // 3. Перевіряємо термін дії access токена
   const isAccessTokenExpired = session.accessTokenValidUntil < new Date();
 
   if (isAccessTokenExpired) {
     throw createHttpError(401, 'Access token expired');
   }
 
-  // 5. Якщо з токеном все добре і сесія існує, шукаємо користувача
+  // 4. Шукаємо користувача
   const user = await User.findById(session.userId);
 
-  // 6. Якщо користувача не знайдено
   if (!user) {
-    throw createHttpError(401);
+    throw createHttpError(401, 'User not found');
   }
 
-  // 7. Якщо користувач існує, додаємо його до запиту
+  // 5. Додаємо користувача до req
   req.user = user;
 
-  // 8. Передаємо управління далі
   next();
 };
