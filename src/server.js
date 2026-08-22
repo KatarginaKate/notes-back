@@ -19,7 +19,7 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:3001"],
+    origin: ["http://localhost:3000"],
     credentials: true,
   })
 );
@@ -34,7 +34,7 @@ app.use((req, res, next) => {
 });
 
 app.use('/users', userRoutes);
-app.use('/users', userRoutes);
+
 
 // 404 middleware (після всіх маршрутів)
 app.use(notFoundHandler);
