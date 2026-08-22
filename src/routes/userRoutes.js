@@ -20,6 +20,10 @@ router.patch(
   "/me/avatar",
   authenticate,
   upload.single("avatar"),
+  (req, res, next) => {
+    console.log("🔥 AVATAR BACKEND ROUTE HIT");
+    next();
+  },
   updateUserAvatar
 );
 

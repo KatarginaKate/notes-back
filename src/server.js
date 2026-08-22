@@ -27,6 +27,13 @@ app.use(cookieParser());
 app.use(logger);
 app.use('/notes', notesRoutes);
 app.use('/auth', authRoutes);
+
+app.use((req, res, next) => {
+  console.log("BACKEND REQUEST:", req.method, req.originalUrl);
+  next();
+});
+
+app.use('/users', userRoutes);
 app.use('/users', userRoutes);
 
 // 404 middleware (після всіх маршрутів)
