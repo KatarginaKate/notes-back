@@ -11,6 +11,8 @@ import userRoutes from './routes/userRoutes.js';
 
 import notesRoutes from './routes/notesRoutes.js';
 import cookieParser from "cookie-parser";
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './docs/swagger.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -26,6 +28,8 @@ app.use(
 );
 app.use(cookieParser());
 app.use(logger);
+app.get('/docs.json', (req, res) => res.json(swaggerSpec));
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/notes', notesRoutes);
 app.use('/auth', authRoutes);
 
