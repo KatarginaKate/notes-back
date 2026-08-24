@@ -50,5 +50,8 @@ export const updateUserAvatar = async (req, res, next) => {
     { returnDocument: "after" },
   );
 
-  res.status(200).json({ url: updatedUser.avatar });
+  res.status(200).json({
+    url: updatedUser.avatar,
+    avatar: updatedUser.avatar,
+  });
 };

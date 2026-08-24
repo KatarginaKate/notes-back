@@ -14,12 +14,13 @@ import cookieParser from "cookie-parser";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const frontendOrigin = process.env.FRONTEND_DOMAIN || 'http://localhost:5173';
 
 // Middleware
 app.use(express.json());
 app.use(
   cors({
-    origin: ["http://localhost:3000"],
+    origin: frontendOrigin,
     credentials: true,
   })
 );

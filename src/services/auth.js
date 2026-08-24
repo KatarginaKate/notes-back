@@ -20,9 +20,9 @@ export const createSession = async (userId) => {
 export const setSessionCookies = (res, session) => {
   const cookieOptions = {
     httpOnly: true,
-    secure: true,
-    sameSite: 'none',
-    path: '/',          // ОБОВʼЯЗКОВО
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    path: '/',
   };
 
   res.cookie('accessToken', session.accessToken, {
