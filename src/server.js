@@ -28,8 +28,13 @@ app.use(
 );
 app.use(cookieParser());
 app.use(logger);
-app.get('/docs.json', (req, res) => res.json(swaggerSpec));
-app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.get('/api-docs.json', (req, res) => res.json(swaggerSpec));
+
+app.use(
+  '/api-docs',
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec),
+);
 app.use('/notes', notesRoutes);
 app.use('/auth', authRoutes);
 
