@@ -169,7 +169,7 @@ export const swaggerSpec = {
     '/notes': {
       get: {
         tags: ['Notes'],
-        summary: 'List current user notes',
+        summary: 'List of all notes',
         security: [{ sessionCookie: [] }],
         parameters: [
           { name: 'page', in: 'query', schema: { type: 'integer', minimum: 1, default: 1 } },

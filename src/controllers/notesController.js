@@ -14,7 +14,7 @@ export const getAllNotes = async (req, res, next) => {
     const skip = (pageNum - 1) * perPageNum;
 
     // 🔥 base query
-    let query = Note.find({ userId: req.user._id });
+    let query = Note.find();
 
     // 🔹 filter by tag
     if (tag) {
@@ -32,7 +32,7 @@ export const getAllNotes = async (req, res, next) => {
     }
 
     // 📊 count query (IMPORTANT: separate but same chaining style)
-    let countQuery = Note.find({ userId: req.user._id });
+    let countQuery = Note.find();
 
     if (tag) {
       countQuery = countQuery.where('tag').equals(tag);
