@@ -60,6 +60,16 @@ export const swaggerSpec = {
     },
   },
   paths: {
+    '/auth/session': {
+      get: {
+        tags: ['Auth'],
+        summary: 'Get session status',
+        security: [{ sessionCookie: [] }],
+        responses: {
+          200: { description: 'Session status', content: { 'application/json': { schema: { $ref: '#/components/schemas/SessionStatus' } } } },
+        },
+      },
+    },
     '/auth/register': {
       post: {
         tags: ['Auth'],
@@ -69,7 +79,7 @@ export const swaggerSpec = {
           content: { 'application/json': { schema: { $ref: '#/components/schemas/AuthCredentials' } } },
         },
         responses: {
-          201: { description: 'User registered', content: { 'application/json': { schema: { $ref: '#/components/schemas/User' } } } },
+          201: { description: 'User registered', content: { 'application/json': { schema: { $ref: '#/components/schemas/AuthSuccessResponse' } } } },
           400: { description: 'Email already in use', content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } } },
         },
       },
@@ -83,7 +93,7 @@ export const swaggerSpec = {
           content: { 'application/json': { schema: { $ref: '#/components/schemas/AuthCredentials' } } },
         },
         responses: {
-          200: { description: 'User logged in; session cookies are set', content: { 'application/json': { schema: { $ref: '#/components/schemas/User' } } } },
+          200: { description: 'User logged in; session cookies are set', content: { 'application/json': { schema: { $ref: '#/components/schemas/AuthSuccessResponse' } } } },
           401: { description: 'Invalid credentials', content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } } },
         },
       },
@@ -93,7 +103,7 @@ export const swaggerSpec = {
         tags: ['Auth'],
         summary: 'Log out the current session',
         security: [{ sessionCookie: [] }],
-        responses: { 204: { description: 'Session logged out' } },
+        responses: { 200: { description: 'Session logged out', content: { 'application/json': { schema: { $ref: '#/components/schemas/Message' } } } } },
       },
     },
     '/auth/refresh': {
@@ -169,7 +179,7 @@ export const swaggerSpec = {
     '/notes': {
       get: {
         tags: ['Notes'],
-        summary: 'List of all notes',
+        summary: 'List all notes',
         security: [{ sessionCookie: [] }],
         parameters: [
           { name: 'page', in: 'query', schema: { type: 'integer', minimum: 1, default: 1 } },
@@ -227,6 +237,27 @@ swaggerSpec.components.schemas.AuthCredentials = {
 swaggerSpec.components.schemas.Message = {
   type: 'object',
   properties: { message: { type: 'string' } },
+};
+
+swaggerSpec.components.schemas.AuthSuccessResponse = {
+  type: 'object',
+  properties: {
+    message: { type: 'string' },
+    user: {
+      type: 'object',
+      properties: {
+        _id: { type: 'string' },
+        email: { type: 'string', format: 'email' },
+        username: { type: 'string' },
+        avatar: { type: 'string', format: 'uri' },
+      },
+    },
+  },
+};
+
+swaggerSpec.components.schemas.SessionStatus = {
+  type: 'object',
+  properties: { isLoggedIn: { type: 'boolean' } },
 };
 
 swaggerSpec.externalDocs = {

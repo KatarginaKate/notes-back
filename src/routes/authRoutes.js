@@ -3,6 +3,7 @@
 import { Router } from 'express';
 import { celebrate } from 'celebrate';
 import {
+  getSessionStatus,
   loginUser,
   logoutUser,
   refreshUserSession,
@@ -19,6 +20,7 @@ import {
 
 const router = Router();
 
+router.get('/session', getSessionStatus);
 router.post('/register', celebrate(registerUserSchema), registerUser);
 router.post('/login', celebrate(loginUserSchema), loginUser);
 router.post('/logout', logoutUser);

@@ -28,10 +28,17 @@ export const registerUser = async (req, res) => {
 
   const newSession = await createSession(newUser._id);
 
-  // 2. Викликаємо, передаємо об'єкт відповіді та сесію
   setSessionCookies(res, newSession);
 
-  res.status(201).json(newUser);
+  res.status(201).json({
+    message: 'User registered successfully',
+    user: {
+      _id: newUser._id,
+      email: newUser.email,
+      username: newUser.username || newUser.email,
+      avatar: newUser.avatar,
+    },
+  });
 };
 
 export const loginUser = async (req, res) => {
@@ -51,10 +58,17 @@ export const loginUser = async (req, res) => {
 
   const newSession = await createSession(user._id);
 
-  // 3. Викликаємо, передаємо об'єкт відповіді та сесію
   setSessionCookies(res, newSession);
 
-  res.status(200).json(user);
+  res.status(200).json({
+    message: 'User logged in successfully',
+    user: {
+      _id: user._id,
+      email: user.email,
+      username: user.username || user.email,
+      avatar: user.avatar,
+    },
+  });
 };
 
 export const logoutUser = async (req, res) => {
@@ -68,7 +82,7 @@ export const logoutUser = async (req, res) => {
   res.clearCookie('accessToken');
   res.clearCookie('refreshToken');
 
-  res.status(204).send();
+  res.status(200).json({ message: 'Logged out successfully' });
 };
 
 export const refreshUserSession = async (req, res) => {
@@ -78,40 +92,96 @@ export const refreshUserSession = async (req, res) => {
     throw createHttpError(401, 'Missing session credentials');
   }
 
-  // 1. Знаходимо поточну сесію за id сесії та рефреш токеном
   const session = await Session.findOne({
     _id: sessionId,
     refreshToken,
   });
 
-  // 2. Якщо такої сесії нема, повертаємо помилку
   if (!session) {
     throw createHttpError(401, 'Session not found');
   }
 
-  // 3. Якщо сесія існує, перевіряємо валідність рефреш токена
   const isSessionTokenExpired = session.refreshTokenValidUntil < new Date();
 
-  // Якщо термін дії рефреш токена вийшов,
-  // видаляємо сесію і повертаємо помилку
   if (isSessionTokenExpired) {
-	await session.deleteOne();
-	res.clearCookie('sessionId');
+    await session.deleteOne();
+    res.clearCookie('sessionId');
     res.clearCookie('accessToken');
     res.clearCookie('refreshToken');
     throw createHttpError(401, 'Session token expired');
   }
 
-  // 4. Якщо всі перевірки пройшли добре, видаляємо поточну сесію
-	await session.deleteOne();
+  await session.deleteOne();
 
-  // 5. Створюємо нову сесію та додаємо кукі
   const newSession = await createSession(session.userId);
   setSessionCookies(res, newSession);
 
   res.status(200).json({
     message: 'Session refreshed',
   });
+};
+
+export const getSessionStatus = async (req, res) => {
+  const { sessionId, refreshToken } = req.cookies;
+
+  if (!sessionId) {
+    res.clearCookie('sessionId');
+    res.clearCookie('accessToken');
+    res.clearCookie('refreshToken');
+    return res.status(200).json({ isLoggedIn: false });
+  }
+
+  const session = await Session.findById(sessionId);
+
+  if (!session) {
+    res.clearCookie('sessionId');
+    res.clearCookie('accessToken');
+    res.clearCookie('refreshToken');
+    return res.status(200).json({ isLoggedIn: false });
+  }
+
+  const isAccessTokenExpired = session.accessTokenValidUntil < new Date();
+
+  if (!isAccessTokenExpired) {
+    return res.status(200).json({ isLoggedIn: true });
+  }
+
+  if (!refreshToken) {
+    await session.deleteOne();
+    res.clearCookie('sessionId');
+    res.clearCookie('accessToken');
+    res.clearCookie('refreshToken');
+    return res.status(200).json({ isLoggedIn: false });
+  }
+
+  const refreshedSession = await Session.findOne({
+    _id: sessionId,
+    refreshToken,
+  });
+
+  if (!refreshedSession) {
+    await session.deleteOne();
+    res.clearCookie('sessionId');
+    res.clearCookie('accessToken');
+    res.clearCookie('refreshToken');
+    return res.status(200).json({ isLoggedIn: false });
+  }
+
+  const isRefreshTokenExpired = refreshedSession.refreshTokenValidUntil < new Date();
+
+  if (isRefreshTokenExpired) {
+    await refreshedSession.deleteOne();
+    res.clearCookie('sessionId');
+    res.clearCookie('accessToken');
+    res.clearCookie('refreshToken');
+    return res.status(200).json({ isLoggedIn: false });
+  }
+
+  await refreshedSession.deleteOne();
+  const newSession = await createSession(refreshedSession.userId);
+  setSessionCookies(res, newSession);
+
+  return res.status(200).json({ isLoggedIn: true });
 };
 
 export const requestResetEmail = async (req, res) => {
